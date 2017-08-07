@@ -49,11 +49,34 @@
 						<input type="number"  onChange={this.onNumber1Change.bind(this)}/>
 						<input type="number"  onChange={this.onNumber2Change.bind(this)}/>
 						<input type="button" value="Add" ref="btnAdd" onClick={this.onAddClick.bind(this)}/>
-						<div id="divResult">{this.props.model.result}</div>
+						<CalculatorResult data={this.props.model.result}></CalculatorResult>
 					</div>
 				)
 			}
 		}
+
+		{/*
+		class CalculatorResult extends React.Component{
+			render(){
+				let resultStyle = {
+					color : this.props.data >= 0 ? 'green' : 'red'
+				}
+				return(
+					<div id="divResult" style={resultStyle}>{this.props.data}</div>
+				)
+			}
+		}
+		*/}
+
+		let CalculatorResult = ({data}) => {
+			let resultStyle = {
+				color : data >= 0 ? 'green' : 'red'
+			}
+			return(
+				<div id="divResult" style={resultStyle}>{data}</div>
+			)
+		};
+
 
 		let model = new CalculatorModel();
 		function renderApp(){
