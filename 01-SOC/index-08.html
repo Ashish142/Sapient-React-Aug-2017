@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Salary Calculator</title>
+	<style>
+		.field{
+			margin-bottom: 10px;
+		}
+		label{
+			display: block;
+		}
+		#divResult{
+			color : red;
+			font-size: 22pt;
+		}
+		body{
+			margin-left: 50px;
+		}
+	</style>
+	<script src="jquery-3.2.1.js"></script>
+	<script src="handlebars.js"></script>
+	<script>
+		String.prototype.toInt = function() {
+			return parseInt(this,10);
+		};
+
+		//Model
+		//state & behavior of a calculator
+		function SalaryCalculator(){
+			var _data = {
+				basic : 0,
+				hra : 0,
+				da : 0,
+				tax : 0,
+				salary : 0
+			};
+
+			this.get = function(attrName){
+				return _data[attrName];
+			};
+
+			this.set = function(attrName, value){
+				if (_data[attrName] === value) return;
+				_data[attrName] = value;
+				//trigger change notification for 'attrName'
+				triggerCallbacks(attrName);
+				triggerCallbacks('all');
+				
+			};
+			function triggerCallbacks(attrName){
+				console.log(_callbacks);
+				_callbacks[attrName].forEach(function(callback){
+					callback();	
+				});
+			}
+
+			var _callbacks = {
+				basic : [],
+				hra : [],
+				da : [],
+				tax : [],
+				salary : [],
+				all : []
+			};
+
+			this.subscribe = function(attrName, callback){
+				console.log(arguments);
+				if (typeof callback === 'function')
+					_callbacks[attrName].push(callback);
+			};
+
+			this.getData = function(){
+				return {
+					basic : _data.basic,
+					hra : _data.hra,
+					da : _data.da,
+					tax : _data.tax,
+					salary : _data.salary
+				};
+			};
+		}
+		SalaryCalculator.prototype.calculate = function() {
+			var gross = this.get('basic') + this.get('hra') + this.get('da');
+			var net = gross * ((100-this.get('tax'))/100);
+			this.set('salary', net);
+		};
+
+		function SalaryCalculatorView(calculator){
+
+			var $el = this.$el =  $('<div></div>');
+
+			//React to user actions
+			$el.on('change', '#txtBasic', function(){
+				calculator.set('basic', this.value.toInt());
+			});
+			
+			$el.on('change', '#txtHra', function(){
+				calculator.set('hra', this.value.toInt());
+			});
+			
+			$el.on('change', '#txtDa', function(){
+				calculator.set('da', this.value.toInt());
+			});
+			
+			$el.on('change', '#rangeTax', function(){
+				calculator.set('tax', this.value.toInt());
+				$('#spanTax' , $el).html(this.value);
+			});
+
+
+			$el.on('click', '#btnCalculate', function(){
+				calculator.calculate();
+			});
+
+			
+
+			//React to model changes
+			
+			
+
+			var template = `
+				<div class="field">
+					<label for="">Basic :</label>
+					<input type="number" id="txtBasic">
+				</div>
+				<div class="field">
+					<label for="">HRA :</label>
+					<input type="number" id="txtHra">
+				</div>
+				<div class="field">
+					<label for="">DA :</label>
+					<input type="number" id="txtDa">
+				</div>
+				<div class="field">
+					<label for="">Tax :</label>
+					<input type="range" id="rangeTax" min="0" max="30" value="0">
+					<span id="spanTax">{{tax}}</span>
+				</div>
+				<div class="field">
+					<input type="button" id="btnCalculate" value="Calculate"></div>
+				<div class="field">
+					<table>
+						<tr>
+							<td>
+								<div id="divBasic">
+									{{basic}}
+								</div>
+							</td>
+							<td>
+								<div id="divHra">
+									{{hra}}
+								</div>
+							</td>
+							<td>
+								<div id="divDa">
+									{{da}}
+								</div>
+							</td>
+							<td>
+								<div id="divTax">
+									{{tax}}
+								</div>
+							</td>
+							<td>
+								<div id="divResult">{{salary}}</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+			`
+			this.render = function(){
+				var templateFn = Handlebars.compile(template);
+				var resultHtml = templateFn(calculator.getData());
+				$el.html(resultHtml);
+			}
+
+			calculator.subscribe('all', this.render);
+		}
+
+		//View
+		
+	</script>
+</head>
+<body>
+	<h1>Salary Calculator</h1>
+	<hr>
+	<section class="content">
+		
+	</section>
+</body>
+</html>
