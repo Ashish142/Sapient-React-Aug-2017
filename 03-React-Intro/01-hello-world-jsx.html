@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Hello World</title>
+	<script src="react.js"></script>
+	<script src="react-dom.js"></script>
+	<script src="babel.min.js"></script>
+	<script type="text/babel">
+		class HelloWorld extends React.Component{
+			render(){
+				return (
+					<div> 
+						<h3>Hello World!</h3>
+						<hr />
+						<p> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sit molestiae debitis placeat repellat, aliquid numquam a culpa, commodi ratione. Dolor est, delectus numquam ea velit, mollitia doloribus placeat aperiam eligendi</p>
+						<ol> 
+							<li> Pen </li>
+							<li> Pencil </li>
+						</ol>
+					</div>
+				);
+			}
+		}
+		function init(){
+			ReactDOM.render(<HelloWorld></HelloWorld>,
+				document.getElementById('cotnent'));
+		}
+		//window.addEventListener('DOMContentLoaded', init);
+		init();
+	</script>
+</head>
+<body>
+	<div id="cotnent"></div>
+</body>
+</html>

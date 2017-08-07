@@ -49,10 +49,7 @@
 				
 			};
 			function triggerCallbacks(attrName){
-				console.log(_callbacks);
-				_callbacks[attrName].forEach(function(callback){
-					callback();	
-				});
+				_callbacks[attrName].forEach(callback => callback());
 			}
 
 			var _callbacks = {
