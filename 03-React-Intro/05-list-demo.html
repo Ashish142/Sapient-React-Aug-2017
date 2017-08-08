@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Listing Demo</title>
+	<script src="react.js"></script>
+	<script src="react-dom.js"></script>
+	<script src="babel.min.js"></script>
+	<script type="text/babel">
+		let products = ['Pen', 'Pencil', 'Marker'];
+		class ProductsList extends React.Component{
+			render(){
+				let { products } = this.props;
+				let productItems = products.map(product => (
+					<li>{product}</li>
+				))
+				return (
+					<ol>
+						{productItems}
+					</ol>
+				)
+			}
+		}
+		function renderApp(){
+			ReactDOM.render(<ProductsList products={products}></ProductsList>,
+				document.getElementById('content'));
+		}
+		renderApp();
+		
+	</script>
+</head>
+<body>
+	<div id="content"></div>
+</body>
+</html>
