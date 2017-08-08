@@ -66,19 +66,26 @@
 				this._callbacks.forEach(callback => callback());
 			}
 		}
+
+		class Bug{
+			constructor(name = '', isClosed = false){
+				this.name = name;
+				this.isClosed = isClosed;
+			}
+			toggle(){
+				this.isClosed = !this.isClosed;
+			}
+		}
+
+
 		class BugList extends EventEmitter{
 			constructor(){
 				super();
 				this._list = [
-					{name : 'bug-1', isClosed : false} , 
-					{name : 'bug-2', isClosed : false} 
+					
 				];
 			}
-			add(bugName){
-				let newBug = {
-					name : bugName,
-					isClosed : false
-				};
+			add(newBug){
 				this._list.push(newBug);
 				this.trigger();
 			}
@@ -110,7 +117,8 @@
 		class BugEdit extends React.Component{
 			onCreateClick(){
 				let bugName = this.refs.txtBugName.value;
-				this.props.bugList.add(bugName);
+				var newBugObject = new Bug(bugName);
+				this.props.newBug(newBugObject);	
 			}
 			render(){
 				return(
@@ -122,30 +130,34 @@
 				);
 			}
 		}
-		class BugTracker extends React.Component{
-			
 
-			onBugNameClick(bug){
-				this.props.bugList.toggle(bug);
+		class BugItem extends React.Component{
+			onBugNameClick(){
+				this.props.bug.toggle();
 			}
+			render(){
+				let { bug } = this.props;
+				let bugClass = bug.isClosed ? 'bugname closed' : 'bugname';
+				return (
+					<li>
+						<span className={bugClass} onClick={this.onBugNameClick.bind(this)}> {bug.name}</span>
+						<div className="datetime">[Created At]</div>
+						<i>{bug.isClosed.toString()}</i>
+					</li>
+				)
+			}
+		}
+		class BugTracker extends React.Component{
+			onNewBug(newBugObject){
+				this.props.bugList.add(newBugObject);
+			}
+			
 			onRemoveClosedClick(){
 				this.props.bugList.removeClosed();
 			}
 			render(){
 				let { bugList } = this.props;
-
-				let bugItems = bugList.list.map((bug,idx) => {
-					let bugClass = bug.isClosed ? 'bugname closed' : 'bugname';
-					return (<li key={idx}>
-							<span className={bugClass} onClick={this.onBugNameClick.bind(this, bug)}> {bug.name}</span>
-							<div className="datetime">[Created At]</div>
-							<i>{bug.isClosed.toString()}</i>
-						</li>
-					);
-				});
-
-				
-
+				let bugItems = bugList.list.map((bug,idx) => (<BugItem key={idx} bug={bug}></BugItem>) );
 				return(
 					<div>
 						<BugStats bugs={bugList.list}></BugStats>
@@ -158,7 +170,7 @@
 							<label htmlFor="">Descending ? :</label>
 							<input type="checkbox" />
 						</section>
-						<BugEdit bugList={bugList}></BugEdit>
+						<BugEdit newBug={this.onNewBug.bind(this)}></BugEdit>
 						<section className="list">
 							<ol>
 								{bugItems}
