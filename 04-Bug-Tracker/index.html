@@ -69,14 +69,29 @@
 		class BugList extends EventEmitter{
 			constructor(){
 				super();
-				this._list = ['bug-1', 'bug-2'];
+				this._list = [
+					{name : 'bug-1', isClosed : false} , 
+					{name : 'bug-2', isClosed : false} 
+				];
 			}
 			add(bugName){
-				this._list.push(bugName);
+				let newBug = {
+					name : bugName,
+					isClosed : false
+				};
+				this._list.push(newBug);
 				this.trigger();
 			}
 			get list(){
 				return this._list;
+			}
+			toggle(bug){
+				bug.isClosed = !bug.isClosed;
+				this.trigger();
+			}
+			removeClosed(){
+				this._list = this._list.filter(bug => !bug.isClosed);
+				this.trigger();
 			}
 		}
 
@@ -85,18 +100,33 @@
 				let bugName = this.refs.txtBugName.value;
 				this.props.bugList.add(bugName);
 			}
+
+			onBugNameClick(bug){
+				this.props.bugList.toggle(bug);
+			}
+			onRemoveClosedClick(){
+				this.props.bugList.removeClosed();
+			}
 			render(){
 				let { bugList } = this.props;
-				let bugItems = bugList.list.map((bug,idx) => (
-					<li key={idx}>
-						<span className="bugname">{bug}</span>
-						<div className="datetime">[Created At]</div>
-					</li>
-				));
+
+				let bugItems = bugList.list.map((bug,idx) => {
+					let bugClass = bug.isClosed ? 'bugname closed' : 'bugname';
+					return (<li key={idx}>
+							<span className={bugClass} onClick={this.onBugNameClick.bind(this, bug)}> {bug.name}</span>
+							<div className="datetime">[Created At]</div>
+							<i>{bug.isClosed.toString()}</i>
+						</li>
+					);
+				});
+
+				let closedCount = bugList.list.reduce((prevResult, bug) => 
+					bug.isClosed ? ++prevResult : prevResult, 0);
+				
 				return(
 					<div>
 						<section className="stats">
-							<span className="closed">2</span>
+							<span className="closed">{closedCount}</span>
 							<span> / </span>
 							<span>{bugList.list.length}</span>
 						</section>
@@ -118,7 +148,7 @@
 							<ol>
 								{bugItems}
 							</ol>
-							<input type="button" value="Remove Closed" />
+							<input type="button" value="Remove Closed" onClick={this.onRemoveClosedClick.bind(this)}/>
 						</section>
 					</div>
 				)
