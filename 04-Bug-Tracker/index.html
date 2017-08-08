@@ -50,43 +50,95 @@
 		9. Persist the bugs in the server
 		10. Make the bugs accessible through unique urls
 	</script>
+	<script src="react.js"></script>
+	<script src="react-dom.js"></script>
+	<script src="babel.min.js"></script>
+	<script type="text/babel">
+		class EventEmitter{
+			constructor(){
+				this._callbacks = [];
+			}
+			subscribe(callback){
+				if (typeof callback === 'function')
+					this._callbacks.push(callback);
+			}
+			trigger(){
+				this._callbacks.forEach(callback => callback());
+			}
+		}
+		class BugList extends EventEmitter{
+			constructor(){
+				super();
+				this._list = ['bug-1', 'bug-2'];
+			}
+			add(bugName){
+				this._list.push(bugName);
+				this.trigger();
+			}
+			get list(){
+				return this._list;
+			}
+		}
+
+		class BugTracker extends React.Component{
+			onCreateClick(){
+				let bugName = this.refs.txtBugName.value;
+				this.props.bugList.add(bugName);
+			}
+			render(){
+				let { bugList } = this.props;
+				let bugItems = bugList.list.map((bug,idx) => (
+					<li key={idx}>
+						<span className="bugname">{bug}</span>
+						<div className="datetime">[Created At]</div>
+					</li>
+				));
+				return(
+					<div>
+						<section className="stats">
+							<span className="closed">2</span>
+							<span> / </span>
+							<span>{bugList.list.length}</span>
+						</section>
+						<section className="sort">
+							<label htmlFor="">Order By :</label>
+							<select>
+								<option value=""></option>
+								<option value=""></option>
+							</select>
+							<label htmlFor="">Descending ? :</label>
+							<input type="checkbox" />
+						</section>
+						<section className="edit">
+							<label htmlFor="">New Bug :</label>
+							<input type="text" ref="txtBugName"/>
+							<input type="button" value="Create" onClick={this.onCreateClick.bind(this)}/>
+						</section>
+						<section className="list">
+							<ol>
+								{bugItems}
+							</ol>
+							<input type="button" value="Remove Closed" />
+						</section>
+					</div>
+				)
+			}
+		}
+
+		let bugList = new BugList();
+		function renderApp(){
+			ReactDOM.render(<BugTracker bugList={bugList}></BugTracker>, 
+				document.getElementById('content'));
+		};
+		renderApp();
+		bugList.subscribe(renderApp);
+	</script>
 </head>
 <body>
 	<h1>Bug Tracker</h1>
 	<hr>
 	<div id="content">
-		<section className="stats">
-			<span class="closed">2</span>
-			<span> / </span>
-			<span>5</span>
-		</section>
-		<section class="sort">
-			<label htmlFor="">Order By :</label>
-			<select name="" id="">
-				<option value=""></option>
-				<option value=""></option>
-			</select>
-			<label for="">Descending ? :</label>
-			<input type="checkbox" name="" id="">
-		</section>
-		<section class="edit">
-			<label for="">New Bug :</label>
-			<input type="text" name="" id="">
-			<input type="button" value="Create">
-		</section>
-		<section class="list">
-			<ol>
-				<li>
-					<span class="bugname">[This is bug - 1]</span>
-					<div class="datetime">[Created At]</div>
-				</li>
-				<li>
-					<span class="bugname closed">[This is bug - 2]</span>
-					<div class="datetime">[Created At]</div>
-				</li>
-			</ol>
-			<input type="button" value="Remove Closed">
-		</section>
+		
 	</div>
 </body>
 </html>
