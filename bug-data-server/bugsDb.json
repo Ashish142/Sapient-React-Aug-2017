@@ -23,6 +23,18 @@
       "name": "User actions are not recognized",
       "isClosed": false,
       "createdAt": "2017-07-28T06:45:37.686Z"
+    },
+    {
+      "name": "fetch is not fetching",
+      "id": 9,
+      "isClosed": false,
+      "createdAt": "2017-08-09T11:03:41.748Z"
+    },
+    {
+      "name": "reducer is not saved",
+      "id": 10,
+      "isClosed": false,
+      "createdAt": "2017-08-09T11:04:48.558Z"
     }
   ],
   "employees": [

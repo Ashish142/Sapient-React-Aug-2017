@@ -6,13 +6,11 @@ function bugsReduer(currentState = [], action){
 			return comparer(item1, item2) * -1;
 		}
 	}
+	if (action.type === 'SERVER_DATA'){
+		return action.payload;
+	}
 	if (action.type === bug_action_types.addNew){
-		let bugName = action.payload,
-			newBug = {
-				name : bugName,
-				isClosed : false,
-				createdAt : new Date()
-			};
+		let newBug = action.payload;
 		return [...currentState, newBug];
 	}
 	if(action.type === bug_action_types.toggle){
