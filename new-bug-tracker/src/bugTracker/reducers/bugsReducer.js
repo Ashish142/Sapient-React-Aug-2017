@@ -24,6 +24,7 @@ function bugsReduer(currentState = [], action){
 		return currentState.filter(bug => !bug.isClosed);
 	}
 	if (action.type === bug_action_types.sort){
+		
 		let attrName = action.payload.by;
 
 		let comparer = function(item1, item2){
@@ -34,7 +35,8 @@ function bugsReduer(currentState = [], action){
 		if (action.payload.descending){
 			comparer = descendingComparer(comparer);
 		}
-		return currentState.sort(comparer);
+		currentState.sort(comparer);
+		return [...currentState];
 	}
 
 	return currentState;

@@ -5,6 +5,22 @@ import BugItem from './BugItem';
 import BugEdit from './BugEdit';
 
 import './BugTracker.css';
+import bugActionCreators from './actions/bug_action_creators';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+
+//
+
+function mapStateToProps(state){
+	return {
+		bugs : state
+	}
+}
+
+function mapDispatchToProps(dispatch){
+	let bugActions = bindActionCreators(bugActionCreators, dispatch);
+	return bugActions;	
+}
 
 let BugTracker = ({ bugs, toggleBug, addNew, removeClosed, sort }) => {
 	let bugItems = bugs.map((bug,idx) => (
@@ -23,4 +39,7 @@ let BugTracker = ({ bugs, toggleBug, addNew, removeClosed, sort }) => {
 		</div>
 	)
 }
-export default BugTracker;
+export default connect(mapStateToProps, mapDispatchToProps)(BugTracker);
+
+
+
