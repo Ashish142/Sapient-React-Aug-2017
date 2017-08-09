@@ -1,4 +1,10 @@
 import React from 'react';
+import BugStats from './BugStats';
+import BugSort from './BugSort';
+import BugItem from './BugItem';
+import BugEdit from './BugEdit';
+
+import './BugTracker.css';
 
 let BugTracker = ({ bugs, toggleBug, addNew, removeClosed, sort }) => {
 	let bugItems = bugs.map((bug,idx) => (
