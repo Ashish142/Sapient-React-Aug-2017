@@ -54,15 +54,22 @@
 	<script src="react-dom.js"></script>
 	<script src="babel.min.js"></script>
 	<script src="state-manager.js"></script>
+	<script src="redux.js"></script>
 	<script type="text/babel">
 		const bug_action_types = {
 			addNew : 'ADD_NEW',
 			toggle : 'TOGGLE',
-			removeClosed : 'REMOVE_CLOSED'
+			removeClosed : 'REMOVE_CLOSED',
+			sort : 'SORT'
 		}
 
 
 		function bugsReduer(currentState = [], action){
+			function descendingComparer(comparer){
+				return function(item1, item2){
+					return comparer(item1, item2) * -1;
+				}
+			}
 			if (action.type === bug_action_types.addNew){
 				let bugName = action.payload,
 					newBug = {
@@ -80,10 +87,24 @@
 			if (action.type === bug_action_types.removeClosed){
 				return currentState.filter(bug => !bug.isClosed);
 			}
+			if (action.type === bug_action_types.sort){
+				let attrName = action.payload.by;
+
+				let comparer = function(item1, item2){
+					if (item1[attrName] > item2[attrName]) return 1;
+					if (item1[attrName] < item2[attrName]) return -1;
+					return 0;
+				}
+				if (action.payload.descending){
+					comparer = descendingComparer(comparer);
+				}
+				return currentState.sort(comparer);
+			}
+
 			return currentState;
 		}
 
-		window.store = SM.createStore(bugsReduer);
+		window.store = Redux.createStore(bugsReduer);
 
 		let BugStats =  ({ bugs }) => {
 			let closedCount = bugs.reduce((prevResult, bug) => 
@@ -113,7 +134,7 @@
 			}
 		}
 
-		class BugItem extends React.Component{
+		{/*class BugItem extends React.Component{
 			onBugNameClick(){
 				this.props.toggle(this.props.bug);
 			}
@@ -128,8 +149,19 @@
 					</li>
 				)
 			}
+		}*/}
+
+		let BugItem = ({bug, toggle}) => {
+				let bugClass = bug.isClosed ? 'bugname closed' : 'bugname';
+				return (
+					<li>
+						<span className={bugClass} onClick={() => toggle(bug)}> {bug.name}</span>
+						<div className="datetime">{bug.createdAt.toString()}</div>
+						<i>{bug.isClosed.toString()}</i>
+					</li>
+				)
 		}
-		class BugTracker extends React.Component{
+		{/*class BugTracker extends React.Component{
 			
 			onRemoveClosedClick(){
 				this.props.removeClosed()
@@ -160,8 +192,75 @@
 					</div>
 				)
 			}
+		}*/}
+
+		class BugSort extends React.Component{
+			onSortChange(){
+				this.props.sort(this.refs.sortBy.value, this.refs.byDescending.checked)
+			}
+			render(){
+				return (
+					<section className="sort">
+						<label htmlFor="">Order By :</label>
+						<select onChange={this.onSortChange.bind(this)} ref="sortBy">
+							<option value="name">Name</option>
+							<option value="isClosed">Status</option>
+						</select>
+						<label htmlFor="">Descending ? :</label>
+						<input type="checkbox" onClick={this.onSortChange.bind(this)} ref="byDescending" />
+					</section>
+				)
+			}
+		}
+		let BugTracker = ({ bugs, toggleBug, addNew, removeClosed, sort }) => {
+			let bugItems = bugs.map((bug,idx) => (
+				<BugItem key={idx} bug={bug} toggle={toggleBug} ></BugItem>) );
+			return(
+				<div>
+					<BugStats bugs={bugs}></BugStats>
+					<BugSort sort={sort}></BugSort>
+					<BugEdit addNew={addNew}></BugEdit>
+					<section className="list">
+						<ol>
+							{bugItems}
+						</ol>
+						<input type="button" value="Remove Closed" onClick={removeClosed}/>
+					</section>
+				</div>
+			)
 		}
 
+		var bugActionsCreators = {
+			addNew : function(bugName){
+				var newBugAction = {
+					type : bug_action_types.addNew,
+					payload : bugName
+				};
+				return newBugAction;
+			},
+			toggleBug : function(bug){
+				let toggleBugAction = {
+					type : bug_action_types.toggle,
+					payload : bug
+				};
+				return toggleBugAction;
+			},
+			removeClosed : function(){
+				let removeClosedAction = {
+					type : bug_action_types.removeClosed
+				};
+				return removeClosedAction
+			},
+			sort : function(attrName, isDescending){
+				let sortBugAction = {
+					type : bug_action_types.sort,
+					payload : { by : attrName, descending : isDescending }
+				};
+				return sortBugAction;
+			}
+
+		}
+		{/*
 		function createRemoveClosedAction(dispatch){
 			return function(){
 				let removeClosedAction = {
@@ -191,15 +290,16 @@
 		let removeClosed = createRemoveClosedAction(store.dispatch);
 		let newBugAction = createNewBugAction(store.dispatch);
 		let toggleBugAction = createToggleBugAction(store.dispatch);
+		*/}
 
+		window.bugActions = Redux.bindActionCreators(bugActionsCreators, store.dispatch);
+		console.log(bugActions);
 		function renderApp(){
 			let bugs = store.getState();
 			ReactDOM.render(
 				<BugTracker 
 					bugs={bugs} 
-					addNew={newBugAction}
-					toggleBug={toggleBugAction}
-					removeClosed={removeClosed}
+					{...bugActions}
 				>
 				</BugTracker>, 
 				document.getElementById('content'));
