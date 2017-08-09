@@ -1,26 +1,27 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-/*
+
 import App from './App';
-import registerServiceWorker from './registerServiceWorker';
-*/
-import { createStore, bindActionCreators } from 'redux';
+
+import { createStore, combineReducers } from 'redux';
 
 import { Provider } from 'react-redux';
 
 import bugsReducer from './bugTracker/reducers/bugsReducer';
+import spinnerReducer from './spinner/reducers/spinnerReducer';
 
 
-import BugTracker from './bugTracker/BugTracker';
+var rootReducer = combineReducers({
+	bugs_data : bugsReducer,
+	spinner_data : spinnerReducer
+});
 
-let store = createStore(bugsReducer);
-
-
+let store = createStore(rootReducer);
 
 ReactDOM.render(
 	<Provider store={store}>
-		<BugTracker></BugTracker>
+		<App></App>
 	</Provider>, 
 	document.getElementById('root'));
 

@@ -12,8 +12,9 @@ import { connect } from 'react-redux';
 //
 
 function mapStateToProps(state){
+
 	return {
-		bugs : state
+		bugs : state.bugs_data
 	}
 }
 
