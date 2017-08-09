@@ -78,7 +78,7 @@
 				return currentState.map(bug => bug === bugToToggle ? toggledBug : bug);
 			}
 			if (action.type === bug_action_types.removeClosed){
-				return currentState;
+				return currentState.filter(bug => !bug.isClosed);
 			}
 			return currentState;
 		}
@@ -144,7 +144,10 @@
 			}
 			
 			onRemoveClosedClick(){
-				//this.props.bugList.removeClosed();
+				let removeClosedAction = {
+					type : bug_action_types.removeClosed
+				};
+				this.props.store.dispatch(removeClosedAction);
 			}
 			render(){
 				let bugList = this.props.store.getState();
